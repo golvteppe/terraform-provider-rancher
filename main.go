@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/golvteppe/terraform-provider-rancher/rancher"
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/terraform-providers/terraform-provider-rancher/rancher"
 )
 
 func main() {
