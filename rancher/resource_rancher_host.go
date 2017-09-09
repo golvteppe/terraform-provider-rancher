@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/resource"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/mitchellh/mapstructure"
 	rancher "github.com/rancher/go-rancher/v2"
 )
 
@@ -54,6 +55,14 @@ func resourceRancherHost() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
+			"driver": {
+				Type:     schema.TypeString,
+				Optional: true,
+			},
+			"driver_config": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -66,6 +75,33 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	hostname := d.Get("hostname").(string)
+	description := d.Get("description").(string)
+	labels := d.Get("labels").(map[string]interface{})
+	driver := d.Get("driver").(string)
+	driverConfigData := d.Get("driver_config").(map[string]interface{})
+
+	var (
+		digitaloceanConfig rancher.DigitaloceanConfig
+	)
+
+	hostData := map[string]interface{}{
+		"hostname":    &hostname,
+		"description": &description,
+		"labels":      &labels,
+	}
+
+	switch driver {
+	case "digitalocean":
+		mapstructure.Decode(driverConfigData, &digitaloceanConfig)
+		hostData["digitaloceanConfig"] = &digitaloceanConfig
+	default:
+		return fmt.Errorf("Invalid driver specified: %s", err)
+	}
+
+	var newHost rancher.Host
+	if err := client.Create("host", hostData, &newHost); err != nil {
+		return err
+	}
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"active", "removed", "removing", "not found", "registering", "activating"},
