@@ -82,6 +82,7 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	var (
 		digitaloceanConfig rancher.DigitaloceanConfig
+		amazonec2Config    rancher.Amazonec2Config
 	)
 
 	hostData := map[string]interface{}{
@@ -94,6 +95,9 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 	case "digitalocean":
 		mapstructure.Decode(driverConfigData, &digitaloceanConfig)
 		hostData["digitaloceanConfig"] = &digitaloceanConfig
+	case "amazonec2":
+		mapstructure.Decode(driverConfigData, &amazonec2Config)
+		hostData["amazonec2Config"] = &amazonec2Config
 	default:
 		return fmt.Errorf("Invalid driver specified: %s", err)
 	}
