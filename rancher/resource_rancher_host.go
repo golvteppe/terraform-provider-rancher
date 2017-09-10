@@ -109,21 +109,22 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 
 	stateConf := &resource.StateChangeConf{
 		Pending:    []string{"creating", "provisioning", "active", "removed", "removing", "not found", "registering", "activating"},
-		Target:     []string{"active", "disconnected"},
-		Refresh:    findHost(client, hostname),
+		Target:     []string{"active"},
+		Refresh:    HostStateRefreshFunc(client, newHost.Id),
 		Timeout:    10 * time.Minute,
 		Delay:      1 * time.Second,
 		MinTimeout: 3 * time.Second,
 	}
-	host, waitErr := stateConf.WaitForState()
+	_, waitErr := stateConf.WaitForState()
 	if waitErr != nil {
 		return fmt.Errorf(
-			"Error waiting for host (%s) to be found: %s", hostname, waitErr)
+			"Error waiting for host (%s) to be created: %s", newHost.Id, waitErr)
 	}
 
-	d.SetId(host.(rancher.Host).Id)
+	d.SetId(newHost.Id)
+	log.Printf("[INFO] Host ID: %s", d.Id())
 
-	return resourceRancherHostUpdate(d, meta)
+	return resourceRancherHostRead(d, meta)
 }
 
 func findHost(client *rancher.RancherClient, hostname string) resource.StateRefreshFunc {
