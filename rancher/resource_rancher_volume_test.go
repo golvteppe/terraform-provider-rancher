@@ -28,15 +28,6 @@ func TestAccRancherVolume_basic(t *testing.T) {
 					resource.TestCheckResourceAttr("rancher_volume.foo", "driver", "rancher-nfs"),
 				),
 			},
-			resource.TestStep{
-				Config: testAccRancherVolumeUpdateConfig,
-				Check: resource.ComposeTestCheckFunc(
-					testAccCheckRancherVolumeExists("rancher_volume.foo", &volume),
-					resource.TestCheckResourceAttr("rancher_volume.foo", "name", "foo2"),
-					resource.TestCheckResourceAttr("rancher_volume.foo", "description", "registry test - updated"),
-					resource.TestCheckResourceAttr("rancher_volume.foo", "driver", "rancher-ebs"),
-				),
-			},
 		},
 	})
 }
@@ -186,18 +177,3 @@ resource "rancher_volume" "foo" {
   environment_id = "${rancher_environment.foo_volume.id}"
 }
 `
-
-const testAccRancherVolumeUpdateConfig = `
- resource "rancher_environment" "foo_volume" {
-   name = "volume test"
-   description = "environment to test volumes"
-   orchestration = "cattle"
- }
-
- resource "rancher_registry" "foo" {
-   name = "foo2"
-   description = "volume test - updated"
-   driver = "rancher-ebs"
-   environment_id = "${rancher_environment.foo_volume.id}"
- }
- `
