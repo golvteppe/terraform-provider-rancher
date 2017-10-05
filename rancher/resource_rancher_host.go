@@ -63,6 +63,10 @@ func resourceRancherHost() *schema.Resource {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
+			"host_template_id": {
+				Type:     schema.TypeMap,
+				Optional: true,
+			},
 		},
 	}
 }
@@ -79,6 +83,7 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 	labels := d.Get("labels").(map[string]interface{})
 	driver := d.Get("driver").(string)
 	driverConfigData := d.Get("driver_config").(map[string]interface{})
+	hostTemplateID := d.Get("host_template_id").(string)
 
 	var (
 		digitaloceanConfig rancher.DigitaloceanConfig
@@ -86,9 +91,10 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 	)
 
 	hostData := map[string]interface{}{
-		"hostname":    &hostname,
-		"description": &description,
-		"labels":      &labels,
+		"hostname":         &hostname,
+		"description":      &description,
+		"labels":           &labels,
+		"host_template_id": &hostTemplateID,
 	}
 
 	switch driver {
