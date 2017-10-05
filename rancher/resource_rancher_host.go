@@ -64,7 +64,7 @@ func resourceRancherHost() *schema.Resource {
 				Optional: true,
 			},
 			"host_template_id": {
-				Type:     schema.TypeMap,
+				Type:     schema.TypeString,
 				Optional: true,
 			},
 		},
