@@ -97,15 +97,17 @@ func resourceRancherHostCreate(d *schema.ResourceData, meta interface{}) error {
 		"host_template_id": &hostTemplateID,
 	}
 
-	switch driver {
-	case "digitalocean":
-		mapstructure.Decode(driverConfigData, &digitaloceanConfig)
-		hostData["digitaloceanConfig"] = &digitaloceanConfig
-	case "amazonec2":
-		mapstructure.Decode(driverConfigData, &amazonec2Config)
-		hostData["amazonec2Config"] = &amazonec2Config
-	default:
-		return fmt.Errorf("Invalid driver specified: %s", err)
+	if driver != "" {
+		switch driver {
+		case "digitalocean":
+			mapstructure.Decode(driverConfigData, &digitaloceanConfig)
+			hostData["digitaloceanConfig"] = &digitaloceanConfig
+		case "amazonec2":
+			mapstructure.Decode(driverConfigData, &amazonec2Config)
+			hostData["amazonec2Config"] = &amazonec2Config
+		default:
+			return fmt.Errorf("Invalid driver specified: %s", err)
+		}
 	}
 
 	var newHost rancher.Host
